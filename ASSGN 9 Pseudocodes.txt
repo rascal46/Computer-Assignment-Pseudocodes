@@ -1,0 +1,260 @@
+//1.
+
+DECLARE STRUCT cricket
+    player AS string
+    team AS string
+    avg AS float
+END STRUCT
+
+DECLARE array players[5] OF STRUCT cricket
+DECLARE variables i, p AS integer, high AS float
+SET p = 0, high = 0
+
+PRINT "Enter details of 5 players:"
+
+FOR i FROM 0 TO 4 DO
+    PRINT "Player ", (i + 1), ":"
+    PRINT "Enter player name: "
+    INPUT players[i].player
+    PRINT "Enter team name: "
+    INPUT players[i].team
+    PRINT "Enter batting average: "
+    INPUT players[i].avg
+ENDFOR
+
+FOR i FROM 1 TO 4 DO
+    IF players[i].avg > players[p].avg THEN
+        SET p = i
+        SET high = players[i].avg
+    ENDIF
+ENDFOR
+
+PRINT "Player with the highest batting average:"
+
+FOR k FROM 0 TO 4 DO
+    IF players[k].avg == high THEN
+        PRINT "Name: ", players[k].player
+        PRINT "Team: ", players[k].team
+        PRINT "Batting Average: ", players[k].avg
+    ENDIF
+ENDFOR
+
+//2.
+
+DECLARE STRUCT student
+    roll AS integer
+    name AS string
+    marks AS float
+END STRUCT
+
+DECLARE array students[150] OF STRUCT student
+DECLARE variables n, i AS integer
+
+PRINT "Enter the number of students (not more than 150):"
+INPUT n
+
+IF n > 150 THEN
+    PRINT "Number of students cannot exceed 150."
+    RETURN 1
+ENDIF
+
+FOR i FROM 0 TO (n - 1) DO
+    PRINT "Enter details for student ", (i + 1), ":"
+    PRINT "Roll Number:"
+    INPUT students[i].roll
+    PRINT "Name:"
+    INPUT students[i].name
+    PRINT "Total Marks:"
+    INPUT students[i].marks
+ENDFOR
+
+PRINT "List of students who scored 75 marks and above:"
+PRINT "Roll No.\tName\t\tTotal Marks"
+PRINT "-------------------------------------------------"
+
+FOR i FROM 0 TO (n - 1) DO
+    IF students[i].marks >= 75 THEN
+        PRINT students[i].roll, "\t\t", students[i].name, "\t\t", students[i].marks
+    ENDIF
+ENDFOR
+
+PRINT "-------------------------------------------------"
+
+RETURN 0
+
+//3.
+
+DECLARE STRUCT books
+    name AS string
+    id AS integer
+    price AS float
+    subject AS string
+END STRUCT
+
+DECLARE FUNCTION price_range(BOOKS[], n, min, max)
+    DECLARE f AS integer = 0
+    FOR i FROM 0 TO (n - 1) DO
+        IF BOOKS[i].price >= min AND BOOKS[i].price <= max THEN
+            PRINT "Name: ", BOOKS[i].name, ", ID: ", BOOKS[i].id, ", Price: ", BOOKS[i].price, ", Subject: ", BOOKS[i].subject
+            SET f = 1
+        ENDIF
+    ENDFOR
+    IF f == 0 THEN
+        PRINT "No BOOKS found in the given price range."
+    ENDIF
+END FUNCTION
+
+DECLARE FUNCTION by_subject(BOOKS[], n, subject)
+    DECLARE f AS integer = 0
+    FOR i FROM 0 TO (n - 1) DO
+        IF BOOKS[i].subject == subject THEN
+            PRINT "Name: ", BOOKS[i].name, ", ID: ", BOOKS[i].id, ", Price: ", BOOKS[i].price, ", Subject: ", BOOKS[i].subject
+            SET f = 1
+        ENDIF
+    ENDFOR
+    IF f == 0 THEN
+        PRINT "No BOOKS on the subject '", subject, "'."
+    ENDIF
+END FUNCTION
+
+MAIN PROGRAM
+    DECLARE n, i AS integer
+    PRINT "Enter the number of BOOKS:"
+    INPUT n
+
+    DECLARE array BOOKS[n] OF STRUCT books
+
+    FOR i FROM 0 TO (n - 1) DO
+        PRINT "Enter details for book ", (i + 1)
+        PRINT "Name:"
+        INPUT BOOKS[i].name
+        PRINT "ID:"
+        INPUT BOOKS[i].id
+        PRINT "Price:"
+        INPUT BOOKS[i].price
+        PRINT "Subject:"
+        INPUT BOOKS[i].subject
+    ENDFOR
+
+    DECLARE min, max AS float
+    PRINT "Enter the minimum price:"
+    INPUT min
+    PRINT "Enter the maximum price:"
+    INPUT max
+    PRINT "BOOKS in the price range ", min, " to ", max, ":"
+    CALL price_range(BOOKS, n, min, max)
+
+    DECLARE search_subject AS string
+    PRINT "Enter the subject to search for:"
+    INPUT search_subject
+    PRINT "BOOKS in the subject '", search_subject, "':"
+    CALL by_subject(BOOKS, n, search_subject)
+
+    RETURN 0
+END MAIN PROGRAM
+
+//4.
+
+DECLARE FILE *fptr
+DECLARE chh AS string[100]
+DECLARE c AS string[105]
+DECLARE ch AS char
+DECLARE n AS integer = 0
+
+PRINT "Enter the name of the text file without adding extension: "
+INPUT chh
+
+SET c = CONCAT(chh, ".txt")
+
+SET fptr = OPEN c FOR reading
+
+IF fptr == NULL THEN
+    PRINT "No Such File Exists."
+    RETURN 1
+ENDIF
+
+WHILE (READ ch FROM fptr) != EOF DO
+    INCREMENT n BY 1
+ENDWHILE
+
+CLOSE fptr
+
+PRINT "Total number of characters in the file: ", n
+
+RETURN 0
+
+//5.
+
+DECLARE FILE *src, *trgt
+DECLARE a AS string[100]
+DECLARE b AS string[100]
+DECLARE xx AS string[105]
+DECLARE yy AS string[105]
+DECLARE ch AS char
+
+PRINT "Enter the name of the source text file (without extension): "
+INPUT a
+PRINT "Enter the name of the target text file (without extension): "
+INPUT b
+
+SET xx = CONCAT(a, ".txt")
+SET yy = CONCAT(b, ".txt")
+
+SET src = OPEN xx FOR reading
+IF src == NULL THEN
+    PRINT "No Such File Exists."
+    RETURN 1
+ENDIF
+
+SET trgt = OPEN yy FOR writing
+IF trgt == NULL THEN
+    PRINT "No Such File Exists."
+    CLOSE src
+    RETURN 1
+ENDIF
+
+WHILE (READ ch FROM src) != EOF DO
+    WRITE ch TO trgt
+ENDWHILE
+
+CLOSE src
+CLOSE trgt
+
+PRINT "Contents copied successfully from ", a, " to ", b
+
+RETURN 0
+
+//6.
+
+DECLARE FILE *sourceFile, *targetFile
+DECLARE ch AS char
+
+IF argc != 3 THEN
+    PRINT "Usage: <program_name> <source_file> <target_file>"
+    RETURN 1
+ENDIF
+
+SET sourceFile = OPEN argv[1] FOR reading
+IF sourceFile == NULL THEN
+    PRINT "Error: Could not open source file ", argv[1]
+    RETURN 1
+ENDIF
+
+SET targetFile = OPEN argv[2] FOR writing
+IF targetFile == NULL THEN
+    PRINT "Error: Could not open or create target file ", argv[2]
+    CLOSE sourceFile
+    RETURN 1
+ENDIF
+
+WHILE (READ ch FROM sourceFile) != EOF DO
+    WRITE ch TO targetFile
+ENDWHILE
+
+CLOSE sourceFile
+CLOSE targetFile
+
+PRINT "Contents copied successfully from ", argv[1], " to ", argv[2]
+
+RETURN 0
+
